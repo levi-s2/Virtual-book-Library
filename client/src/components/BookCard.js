@@ -1,13 +1,14 @@
 import React from 'react';
+import './BookCard.css';
 
-function BookCard({ book }) {
+const BookCard = ({ book }) => {
   return (
-    <div>
-      <img src={book.imageUrl} alt={book.title} />
-      <h2>{book.title}</h2>
-      <p>Author: {book.author}</p>
+    <div className="book-card">
+      <img src={book.image_url} alt={book.title} />
+      <h3>{book.title}</h3>
+      <p>{book.author}</p>
     </div>
   );
-}
+};
 
 export default BookCard;
