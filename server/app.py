@@ -80,23 +80,34 @@ class Register(Resource):
             traceback.print_exc()
             return {"message": "Internal Server Error"}, 500
 
-api.add_resource(Register, '/register')
-
 class Login(Resource):
     def post(self):
-        data = request.get_json()
-        name = data.get('name')
-        password = data.get('password')
+        try:
+            data = request.get_json()
+            name = data.get('name')
+            password = data.get('password')
 
-        user = User.query.filter_by(name=name).first()
+            user = User.query.filter_by(name=name).first()
+            if not user or not user.authenticate(password):
+                return {"message": "Invalid username or password"}, 401
 
-        if user and user.authenticate(password):
             access_token = create_access_token(identity=user.id)
-            return jsonify(access_token=access_token), 200
-        else:
-            return jsonify({"message": "Invalid credentials"}), 401
+            return {"access_token": access_token}, 200
+        except Exception as e:
+            print(f"Error during login: {e}")
+            traceback.print_exc()
+            return {"message": "Internal Server Error"}, 500
 
-api.add_resource(Login, '/login')
+class Protected(Resource):
+    @jwt_required()
+    def get(self):
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+        return {"name": user.name}, 200
+
+api.add_resource(Register, '/register', endpoint='register_endpoint')
+api.add_resource(Login, '/login', endpoint='login_endpoint')
+api.add_resource(Protected, '/protected', endpoint='protected_endpoint')
 
 class UserBooks(Resource):
     @jwt_required()

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Switch, Link, useHistory } from 'react-router-dom';
 import axios from 'axios';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import HomePage from './HomePage';
 import BookCard from './BookCard';
 import Register from './Register';
 import Login from './Login';
 import UserBooks from './UserBooks';
-import BookDetails from './BookDetails'
+import BookDetails from './BookDetails';
 
 const App = () => {
   const [books, setBooks] = useState([]);
@@ -21,6 +21,17 @@ const App = () => {
     }).catch((error) => {
       console.error('Error fetching books:', error);
     });
+
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUser(decoded);
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        localStorage.removeItem('token');
+      }
+    }
   }, []);
 
   const handleSearch = (term) => {
@@ -66,7 +77,7 @@ const App = () => {
     <Router>
       <div>
         <nav>
-          <Link to="/">Home</Link> | <Link to="/books">Books</Link>
+          <Link to="/">Home</Link>
           {user ? (
             <>
               | <Link to="/user/books">My Books</Link> |{' '}
@@ -80,10 +91,10 @@ const App = () => {
         </nav>
         <Switch>
           <Route path="/" exact>
-            <HomePage onSearch={handleSearch} />
-          </Route>
-          <Route path="/books" exact>
-            <BookCard books={books} searchTerm={searchTerm} />
+            <>
+              <HomePage onSearch={handleSearch} />
+              <BookCard books={books} searchTerm={searchTerm} />
+            </>
           </Route>
           <Route path="/books/:id" exact>
             <BookDetails />
@@ -95,7 +106,7 @@ const App = () => {
             <Login onLogin={handleLogin} />
           </Route>
           <Route path="/user/books">
-            <UserBooks user={user} />
+            {user ? <UserBooks user={user} /> : <Login onLogin={handleLogin} />}
           </Route>
         </Switch>
       </div>
