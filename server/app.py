@@ -5,6 +5,7 @@ from flask_restful import Api, Resource
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from models import db, bcrypt, User, Book, Review, Genre, user_books
 import os
+import traceback
 
 app = Flask(__name__)
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -48,19 +49,36 @@ api.add_resource(BookDetail, '/books/<int:book_id>')
 
 class Register(Resource):
     def post(self):
-        data = request.get_json()
-        name = data.get('name')
-        password = data.get('password')
+        try:
+            data = request.get_json()
+            print('Received registration data:', data)
 
-        if User.query.filter_by(name=name).first():
-            return jsonify({"message": "User already exists"}), 400
+            name = data.get('name')
+            password = data.get('password')
+            print(f'Name: {name}, Password: {password}')
 
-        new_user = User(name=name)
-        new_user.password_hash = password  # Use the password_hash property to hash the password
-        db.session.add(new_user)
-        db.session.commit()
+            if not name or not password:
+                print('Name or password not provided')
+                return {"message": "Name and password are required"}, 400
 
-        return jsonify({"message": "User created successfully"}), 201
+            existing_user = User.query.filter_by(name=name).first()
+            if existing_user:
+                print('User already exists')
+                return {"message": "User already exists"}, 400
+
+            new_user = User(name=name)
+            new_user.password_hash = password  # Use the password_hash property to hash the password
+            print(f'New user created: {new_user}')
+
+            db.session.add(new_user)
+            db.session.commit()
+            print('User committed to the database')
+
+            return {"message": "User created successfully"}, 201
+        except Exception as e:
+            print(f"Error during registration: {e}")
+            traceback.print_exc()
+            return {"message": "Internal Server Error"}, 500
 
 api.add_resource(Register, '/register')
 

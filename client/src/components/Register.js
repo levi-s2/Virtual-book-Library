@@ -3,10 +3,19 @@ import React, { useState } from 'react';
 const Register = ({ onRegister }) => {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onRegister(name, password);
+    try {
+      await onRegister(name, password);
+      setSuccess('Registration successful!');
+      setError(null);
+    } catch (error) {
+      setError('Registration failed: ' + error.message);
+      setSuccess(null);
+    }
   };
 
   return (
@@ -23,6 +32,8 @@ const Register = ({ onRegister }) => {
         </div>
         <button type="submit">Register</button>
       </form>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {success && <p style={{ color: 'green' }}>{success}</p>}
     </div>
   );
 };

@@ -7,6 +7,7 @@ import BookCard from './BookCard';
 import Register from './Register';
 import Login from './Login';
 import UserBooks from './UserBooks';
+import BookDetails from './BookDetails'
 
 const App = () => {
   const [books, setBooks] = useState([]);
@@ -15,7 +16,7 @@ const App = () => {
   const history = useHistory();
 
   useEffect(() => {
-    axios.get('http://localhost:5555/books').then((response) => {
+    axios.get('http://localhost:5000/books').then((response) => {
       setBooks(response.data);
     }).catch((error) => {
       console.error('Error fetching books:', error);
@@ -28,16 +29,22 @@ const App = () => {
 
   const handleRegister = async (name, password) => {
     try {
-      await axios.post('http://localhost:5555/register', { name, password });
+      const response = await axios.post('http://localhost:5000/register', { name, password }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log('Registration response:', response);
       alert('Registration successful!');
     } catch (error) {
+      console.error('Registration failed:', error);
       alert('Registration failed: ' + error.response.data.message);
     }
   };
 
   const handleLogin = async (name, password) => {
     try {
-      const response = await axios.post('http://localhost:5555/login', { name, password });
+      const response = await axios.post('http://localhost:5000/login', { name, password });
       const { access_token } = response.data;
       localStorage.setItem('token', access_token);
       const decoded = jwtDecode(access_token);
@@ -79,7 +86,7 @@ const App = () => {
             <BookCard books={books} searchTerm={searchTerm} />
           </Route>
           <Route path="/books/:id" exact>
-            <BookCard />
+            <BookDetails />
           </Route>
           <Route path="/register">
             <Register onRegister={handleRegister} />

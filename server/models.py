@@ -14,23 +14,21 @@ class User(db.Model, SerializerMixin):
     name = db.Column(db.String(100), nullable=False)
     _password_hash = db.Column(db.String, nullable=False)
 
-    reviews = db.relationship(
-        'Review', back_populates="user", cascade='all, delete-orphan')
+    reviews = db.relationship('Review', back_populates="user", cascade='all, delete-orphan')
     books = db.relationship('Book', secondary='user_books', back_populates='users')
 
     serialize_rules = ('-books.users', '-reviews.user')
 
-    @hybrid_property
+    @property
     def password_hash(self):
         return self._password_hash
 
     @password_hash.setter
     def password_hash(self, password):
-        password_hash = bcrypt.generate_password_hash(password.encode('utf-8'))
-        self._password_hash = password_hash.decode('utf-8')
+        self._password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def authenticate(self, password):
-        return bcrypt.check_password_hash(self._password_hash, password.encode('utf-8'))
+        return bcrypt.check_password_hash(self._password_hash, password)
 
     def __repr__(self):
         return f'<User {self.id}. {self.name}>'
