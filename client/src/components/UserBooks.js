@@ -1,24 +1,25 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import './BookCard.css';
 
-const UserBooks = ({ userBooks }) => {
+const UserBooks = ({ userBooks, onRemoveFromMyList }) => {
   return (
-    <div className="book-card-container">
-      {userBooks.length > 0 ? (
-        userBooks.map((book) => (
+    <div className="user-books-container">
+      {userBooks.length === 0 ? (
+        <div className="empty-list-message">
+          <p>Your Book List is currently empty. To add some books, go to the <a href="/">home page</a>.</p>
+        </div>
+      ) : (
+        userBooks.map(book => (
           <div key={book.id} className="book-card">
             <img src={book.image_url} alt={book.title} />
             <div className="book-card-content">
-              <div className="book-card-title">{book.title}</div>
-              <div className="book-card-author">by {book.author}</div>
-              <div className="book-card-genre">{book.genre.genre}</div>
-              <Link to={`/books/${book.id}`}>View Details</Link>
+              <h3>{book.title}</h3>
+              <p>{book.author}</p>
+              <p>{book.genre.genre}</p>
+              <button onClick={() => onRemoveFromMyList(book.id)}>Remove from My List</button>
             </div>
           </div>
         ))
-      ) : (
-        <p>No books in your list yet.</p>
       )}
     </div>
   );

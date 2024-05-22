@@ -115,8 +115,7 @@ class UserBooks(Resource):
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
         user_books = [book.to_dict() for book in user.books]
-        response = make_response(user_books, 200)
-        return response
+        return make_response(jsonify(user_books), 200)
 
     @jwt_required()
     def post(self):
@@ -138,7 +137,25 @@ class UserBooks(Resource):
             traceback.print_exc()
             return make_response({"message": "Internal Server Error"}, 500)
 
-api.add_resource(UserBooks, '/user/books')
+    @jwt_required()
+    def delete(self, book_id):
+        try:
+            user_id = get_jwt_identity()
+            user = User.query.get(user_id)
+            book = Book.query.get(book_id)
+
+            if book not in user.books:
+                return make_response({"message": "Book not in list"}, 400)
+
+            user.books.remove(book)
+            db.session.commit()
+
+            return make_response({"message": "Book removed from list"}, 200)
+        except Exception as e:
+            traceback.print_exc()
+            return make_response({"message": "Internal Server Error"}, 500)
+
+api.add_resource(UserBooks, '/user/books', '/user/books/<int:book_id>')
 
 if __name__ == '__main__':
     app.run(debug=True)
