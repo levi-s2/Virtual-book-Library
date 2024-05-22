@@ -1,35 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import './BookCard.css';
 
-const UserBooks = ({ user }) => {
-  const [userBooks, setUserBooks] = useState([]);
-
-  useEffect(() => {
-    if (user) {
-      const token = localStorage.getItem('token');
-      axios
-        .get('http://localhost:5000/user/books', { headers: { Authorization: `Bearer ${token}` } })
-        .then((response) => {
-          setUserBooks(response.data);
-        })
-        .catch((error) => {
-          console.error('Error fetching user books:', error);
-        });
-    }
-  }, [user]);
-
-  if (!user) {
-    return <div>Please log in to view your books.</div>;
-  }
-
+const UserBooks = ({ userBooks }) => {
   return (
-    <div>
-      <h2>My Books</h2>
-      <ul>
-        {userBooks.map((book) => (
-          <li key={book.id}>{book.title}</li>
-        ))}
-      </ul>
+    <div className="book-card-container">
+      {userBooks.length > 0 ? (
+        userBooks.map((book) => (
+          <div key={book.id} className="book-card">
+            <img src={book.image_url} alt={book.title} />
+            <div className="book-card-content">
+              <div className="book-card-title">{book.title}</div>
+              <div className="book-card-author">by {book.author}</div>
+              <div className="book-card-genre">{book.genre.genre}</div>
+              <Link to={`/books/${book.id}`}>View Details</Link>
+            </div>
+          </div>
+        ))
+      ) : (
+        <p>No books in your list yet.</p>
+      )}
     </div>
   );
 };

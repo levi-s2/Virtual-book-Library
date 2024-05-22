@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Switch, Link, useHistory } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, useHistory } from 'react-router-dom';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import HomePage from './HomePage';
@@ -8,11 +8,13 @@ import Register from './Register';
 import Login from './Login';
 import UserBooks from './UserBooks';
 import BookDetails from './BookDetails';
+import NavBar from './NavBar';
 
 const App = () => {
   const [books, setBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [user, setUser] = useState(null);
+  const [userBooks, setUserBooks] = useState([]);
   const history = useHistory();
 
   useEffect(() => {
@@ -33,6 +35,21 @@ const App = () => {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      const token = localStorage.getItem('token');
+      axios.get('http://localhost:5000/user/books', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }).then((response) => {
+        setUserBooks(response.data);
+      }).catch((error) => {
+        console.error('Error fetching user books:', error);
+      });
+    }
+  }, [user]);
 
   const handleSearch = (term) => {
     setSearchTerm(term);
@@ -70,30 +87,43 @@ const App = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     setUser(null);
+    setUserBooks([]);
     alert('Logged out successfully!');
+  };
+
+  const addToMyList = async (bookId) => {
+    if (user) {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.post(
+          'http://localhost:5000/user/books', 
+          { bookId },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setUserBooks([...userBooks, books.find(book => book.id === bookId)]);
+        alert(response.data.message);  // Display success message
+      } catch (error) {
+        console.error('Error adding book to list:', error);
+        alert(error.response.data.message);  // Display error message
+      }
+    } else {
+      alert('You need to be logged in to add books to your list.');
+    }
   };
 
   return (
     <Router>
       <div>
-        <nav>
-          <Link to="/">Home</Link>
-          {user ? (
-            <>
-              | <Link to="/user/books">My Books</Link> |{' '}
-              <button onClick={handleLogout}>Logout</button>
-            </>
-          ) : (
-            <>
-              | <Link to="/register">Register</Link> | <Link to="/login">Login</Link>
-            </>
-          )}
-        </nav>
+        <NavBar user={user} handleLogout={handleLogout} />
         <Switch>
           <Route path="/" exact>
             <>
               <HomePage onSearch={handleSearch} />
-              <BookCard books={books} searchTerm={searchTerm} />
+              <BookCard books={books} searchTerm={searchTerm} onAddToMyList={addToMyList} />
             </>
           </Route>
           <Route path="/books/:id" exact>
@@ -106,7 +136,7 @@ const App = () => {
             <Login onLogin={handleLogin} />
           </Route>
           <Route path="/user/books">
-            {user ? <UserBooks user={user} /> : <Login onLogin={handleLogin} />}
+            {user ? <UserBooks userBooks={userBooks} /> : <Login onLogin={handleLogin} />}
           </Route>
         </Switch>
       </div>

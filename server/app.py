@@ -115,7 +115,28 @@ class UserBooks(Resource):
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
         user_books = [book.to_dict() for book in user.books]
-        return jsonify(user_books), 200
+        response = make_response(user_books, 200)
+        return response
+
+    @jwt_required()
+    def post(self):
+        try:
+            user_id = get_jwt_identity()
+            data = request.get_json()
+            book_id = data.get('bookId')
+            user = User.query.get(user_id)
+            book = Book.query.get(book_id)
+
+            if book in user.books:
+                return make_response({"message": "Book already in list"}, 400)
+
+            user.books.append(book)
+            db.session.commit()
+
+            return make_response({"message": "Book added to list"}, 201)
+        except Exception as e:
+            traceback.print_exc()
+            return make_response({"message": "Internal Server Error"}, 500)
 
 api.add_resource(UserBooks, '/user/books')
 

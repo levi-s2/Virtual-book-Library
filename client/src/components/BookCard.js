@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './BookCard.css';
 
-const BookCard = ({ books, searchTerm }) => {
+const BookCard = ({ books, searchTerm, onAddToMyList }) => {
   const filteredBooks = books.filter((book) =>
     book.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -17,6 +17,7 @@ const BookCard = ({ books, searchTerm }) => {
             <div className="book-card-author">by {book.author}</div>
             <div className="book-card-genre">{book.genre.genre}</div>
             <Link to={`/books/${book.id}`}>View Details</Link>
+            <button onClick={() => onAddToMyList(book.id)}>Add to My List</button>
           </div>
         </div>
       ))}
