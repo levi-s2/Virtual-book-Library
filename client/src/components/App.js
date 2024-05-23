@@ -81,8 +81,8 @@ const App = () => {
       localStorage.setItem('token', access_token);
       const decoded = jwtDecode(access_token);
       setUser(decoded);
-      alert('Login successful!');
       history.push('/');
+
     } catch (error) {
       alert('Login failed: ' + error.response.data.message);
     }

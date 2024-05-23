@@ -157,5 +157,32 @@ class UserBooks(Resource):
 
 api.add_resource(UserBooks, '/user/books', '/user/books/<int:book_id>')
 
+
+class Reviews(Resource):
+    @jwt_required()
+    def post(self):
+        try:
+            user_id = get_jwt_identity()
+            data = request.get_json()
+            book_id = data.get('book_id')
+            review_body = data.get('review')
+
+            user = User.query.get(user_id)
+            book = Book.query.get(book_id)
+
+            if not book:
+                return {"message": "Book not found"}, 404
+
+            new_review = Review(body=review_body, user_id=user.id, book_id=book.id)
+            db.session.add(new_review)
+            db.session.commit()
+
+            return {"message": "Review added successfully"}, 201
+        except Exception as e:
+            traceback.print_exc()
+            return {"message": "Internal Server Error"}, 500
+
+api.add_resource(Reviews, '/reviews')
+
 if __name__ == '__main__':
     app.run(debug=True)
