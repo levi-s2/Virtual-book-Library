@@ -8,6 +8,8 @@ import Login from './Login';
 import UserBooks from './UserBooks';
 import BookDetails from './BookDetails';
 import NavBar from './NavBar';
+import UserReviews from './UserReviews'; // Import the new component
+import './BookCard.css'; // Ensure the styles are applied
 
 const App = () => {
   const [books, setBooks] = useState([]);
@@ -81,8 +83,8 @@ const App = () => {
       localStorage.setItem('token', access_token);
       const decoded = jwtDecode(access_token);
       setUser(decoded);
+      alert('Login successful!');
       history.push('/');
-
     } catch (error) {
       alert('Login failed: ' + error.response.data.message);
     }
@@ -147,13 +149,7 @@ const App = () => {
         <Switch>
           <Route path="/" exact>
             <>
-              <HomePage 
-                onSearch={handleSearch} 
-                books={books} 
-                searchTerm={searchTerm} 
-                onAddToMyList={addToMyList} 
-                userBooks={userBooks} 
-              />
+              <HomePage onSearch={handleSearch} books={books} searchTerm={searchTerm} onAddToMyList={addToMyList} userBooks={userBooks} />
             </>
           </Route>
           <Route path="/books/:id" exact>
@@ -167,6 +163,9 @@ const App = () => {
           </Route>
           <Route path="/user/books">
             {user ? <UserBooks userBooks={userBooks} onRemoveFromMyList={removeFromMyList} /> : <Login onLogin={handleLogin} />}
+          </Route>
+          <Route path="/reviews">
+            {user ? <UserReviews /> : <Login onLogin={handleLogin} />} {/* Add the route for UserReviews */}
           </Route>
         </Switch>
       </div>

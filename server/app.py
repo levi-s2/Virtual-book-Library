@@ -184,5 +184,23 @@ class Reviews(Resource):
 
 api.add_resource(Reviews, '/reviews')
 
+
+class UserReviews(Resource):
+    @jwt_required()
+    def get(self):
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        user_reviews = [{
+            "id": review.id,
+            "body": review.body,
+            "book": {
+                "id": review.book.id,
+                "title": review.book.title
+            }
+        } for review in user.reviews]
+        return make_response(jsonify(user_reviews), 200)
+
+api.add_resource(UserReviews, '/user/reviews')
+
 if __name__ == '__main__':
     app.run(debug=True)
