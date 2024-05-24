@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import './BookDetails.css';
 
 const BookDetails = () => {
   const { id } = useParams();
@@ -48,29 +49,44 @@ const BookDetails = () => {
   };
 
   return (
-    <div>
+    <div className="book-details-container">
       {book ? (
         <>
-          <h2>{book.title}</h2>
-          <img src={book.image_url} alt={book.title} />
-          <p>{book.description}</p>
-          <h3>Reviews</h3>
-          <button onClick={() => setReviewFormVisible(true)}>Add a Review</button>
-          {isReviewFormVisible && (
-            <form onSubmit={handleReviewSubmit}>
-              <textarea
-                value={review}
-                onChange={(e) => setReview(e.target.value)}
-                placeholder="Write your review here"
-              />
-              <button type="submit">Submit Review</button>
-            </form>
-          )}
-          <ul>
-            {reviews.map((r, index) => (
-              <li key={index}>{r.body}</li>
-            ))}
-          </ul>
+          <div className="book-card">
+            <img src={book.image_url} alt={book.title} className="book-image" />
+            <h2>{book.title}</h2>
+            <p>{book.author}</p>
+            <button
+              onClick={() => alert('Book added to list')}
+              className="add-to-list-button"
+            >
+              Add to List
+            </button>
+          </div>
+          <div className="reviews-section">
+            <h3>Reviews</h3>
+            <button
+              className="add-review-button"
+              onClick={() => setReviewFormVisible(true)}
+            >
+              Add a Review
+            </button>
+            {isReviewFormVisible && (
+              <form className="review-form" onSubmit={handleReviewSubmit}>
+                <textarea
+                  value={review}
+                  onChange={(e) => setReview(e.target.value)}
+                  placeholder="Write your review here"
+                />
+                <button type="submit">Submit Review</button>
+              </form>
+            )}
+            <ul className="reviews-list">
+              {reviews.map((r, index) => (
+                <li key={index} className="review-item">{r.body}</li>
+              ))}
+            </ul>
+          </div>
         </>
       ) : (
         <p>Loading...</p>
