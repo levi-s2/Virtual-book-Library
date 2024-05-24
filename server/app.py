@@ -47,6 +47,16 @@ class BookDetail(Resource):
 
 api.add_resource(BookDetail, '/books/<int:book_id>')
 
+
+class Genres(Resource):
+    def get(self):
+        genres = Genre.query.all()
+        response_dict_list = [genre.to_dict() for genre in genres]
+        return make_response(jsonify(response_dict_list), 200)
+
+api.add_resource(Genres, '/genres')
+
+
 class Register(Resource):
     def post(self):
         try:
