@@ -81,7 +81,7 @@ class Review(db.Model, SerializerMixin):
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
     book = db.relationship('Book', back_populates="reviews")
 
-    serialize_rules = ('-user.reviews', '-book.reviews')
+    serialize_rules = ('-user.reviews', '-book.reviews', '-user.books', '-book.genre')
 
     def __repr__(self):
         return f'<Review {self.id}, {self.body}>'
@@ -90,7 +90,14 @@ class Review(db.Model, SerializerMixin):
         return {
             "id": self.id,
             "body": self.body,
-            "user": self.user.to_dict()
+            "book": {
+                "id": self.book.id,
+                "title": self.book.title
+            },
+            "user": {
+                "id": self.user.id,
+                "name": self.user.name
+            }
         }
 
 
@@ -101,7 +108,7 @@ class Genre(db.Model, SerializerMixin):
 
     books = db.relationship('Book', back_populates='genre', lazy=True)
 
-    serialize_rules = ('-books.genre',)
+    serialize_rules = ('-genre.books', '-reviews.book', '-users.books')
 
     def __repr__(self):
         return f'<Genre {self.id}. {self.genre}>'

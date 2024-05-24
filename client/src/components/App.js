@@ -7,15 +7,17 @@ import Register from './Register';
 import Login from './Login';
 import UserBooks from './UserBooks';
 import BookDetails from './BookDetails';
+import UserReviews from './UserReviews';
 import NavBar from './NavBar';
-import UserReviews from './UserReviews'; // Import the new component
-import './BookCard.css'; // Ensure the styles are applied
+import './BookCard.css';
 
 const App = () => {
   const [books, setBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [user, setUser] = useState(null);
   const [userBooks, setUserBooks] = useState([]);
+  const [genres, setGenres] = useState([]);
+  const [selectedGenre, setSelectedGenre] = useState('');
   const history = useHistory();
 
   useEffect(() => {
@@ -23,6 +25,12 @@ const App = () => {
       setBooks(response.data);
     }).catch((error) => {
       console.error('Error fetching books:', error);
+    });
+
+    axios.get('http://localhost:5000/genres').then((response) => {
+      setGenres(response.data);
+    }).catch((error) => {
+      console.error('Error fetching genres:', error);
     });
 
     const token = localStorage.getItem('token');
@@ -59,6 +67,10 @@ const App = () => {
 
   const handleSearch = (term) => {
     setSearchTerm(term);
+  };
+
+  const handleGenreChange = (genre) => {
+    setSelectedGenre(genre);
   };
 
   const handleRegister = async (name, password) => {
@@ -149,7 +161,7 @@ const App = () => {
         <Switch>
           <Route path="/" exact>
             <>
-              <HomePage onSearch={handleSearch} books={books} searchTerm={searchTerm} onAddToMyList={addToMyList} userBooks={userBooks} />
+              <HomePage onSearch={handleSearch} books={books} searchTerm={searchTerm} onAddToMyList={addToMyList} userBooks={userBooks} genres={genres} selectedGenre={selectedGenre} onGenreChange={handleGenreChange} />
             </>
           </Route>
           <Route path="/books/:id" exact>
@@ -164,8 +176,8 @@ const App = () => {
           <Route path="/user/books">
             {user ? <UserBooks userBooks={userBooks} onRemoveFromMyList={removeFromMyList} /> : <Login onLogin={handleLogin} />}
           </Route>
-          <Route path="/reviews">
-            {user ? <UserReviews /> : <Login onLogin={handleLogin} />} {/* Add the route for UserReviews */}
+          <Route path="/user/reviews">
+            {user ? <UserReviews /> : <Login onLogin={handleLogin} />}
           </Route>
         </Switch>
       </div>

@@ -1,44 +1,66 @@
 import React from 'react';
 import './BookCard.css';
 
-const HomePage = ({ books, searchTerm, onSearch, onAddToMyList, userBooks }) => {
-  const handleSearchChange = (event) => {
-    onSearch(event.target.value);
+const HomePage = ({ onSearch, books, searchTerm, onAddToMyList, userBooks, genres, selectedGenre, onGenreChange }) => {
+  const handleSearchChange = (e) => {
+    onSearch(e.target.value);
   };
 
-  const isBookInList = (bookId) => {
-    return userBooks.some(book => book.id === bookId);
+  const handleGenreChange = (e) => {
+    onGenreChange(e.target.value);
   };
+
+  // Add console logs for debugging
+  console.log('Books:', books);
+  console.log('Selected Genre:', selectedGenre);
+  console.log('Genres:', genres);
+
+  const filteredBooks = books.filter((book) => {
+    const matchesSearchTerm = book.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesGenre = selectedGenre ? book.genre.id === parseInt(selectedGenre) : true;
+    return matchesSearchTerm && matchesGenre;
+  });
+
+  // Add console log for filtered books
+  console.log('Filtered Books:', filteredBooks);
 
   return (
-    <div className="homepage-container">
-      <input
-        type="text"
-        placeholder="Search books..."
-        value={searchTerm}
-        onChange={handleSearchChange}
-        className="search-bar"
-      />
+    <div className="home-page">
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search books..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
+        <select value={selectedGenre} onChange={handleGenreChange}>
+          <option value="">All Genres</option>
+          {genres.map((genre) => (
+            <option key={genre.id} value={genre.id}>
+              {genre.genre}
+            </option>
+          ))}
+        </select>
+      </div>
       <div className="book-list">
-        {books.filter(book => book.title.toLowerCase().includes(searchTerm.toLowerCase())).map(book => (
+        {filteredBooks.map((book) => (
           <div key={book.id} className="book-card">
             <img src={book.image_url} alt={book.title} />
-            <div className="book-card-content">
-              <h3>{book.title}</h3>
-              <p>{book.author}</p>
-              <p>{book.genre.genre}</p>
-              <button 
-                onClick={() => onAddToMyList(book.id)}
-                disabled={isBookInList(book.id)}
-              >
-                {isBookInList(book.id) ? 'Added to My List' : 'Add to My List'}
-              </button>
-              <button 
-                onClick={() => window.location.href = `/books/${book.id}`}
-              >
-                See More
-              </button>
-            </div>
+            <h3>{book.title}</h3>
+            <p>{book.author}</p>
+            <button
+              onClick={() => onAddToMyList(book.id)}
+              disabled={userBooks.some((userBook) => userBook.id === book.id)}
+            >
+              {userBooks.some((userBook) => userBook.id === book.id)
+                ? 'Added to List'
+                : 'Add to My List'}
+            </button>
+            <button
+              onClick={() => window.location.href = `/books/${book.id}`}
+            >
+              See More
+            </button>
           </div>
         ))}
       </div>

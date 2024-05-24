@@ -200,17 +200,32 @@ class UserReviews(Resource):
     def get(self):
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
-        user_reviews = [{
-            "id": review.id,
-            "body": review.body,
-            "book": {
-                "id": review.book.id,
-                "title": review.book.title
-            }
-        } for review in user.reviews]
-        return make_response(jsonify(user_reviews), 200)
+        user_reviews = [review.to_dict() for review in user.reviews]
+        response = make_response(user_reviews, 200)
+        return response
 
-api.add_resource(UserReviews, '/user/reviews')
+    @jwt_required()
+    def delete(self, review_id):
+        user_id = get_jwt_identity()
+        review = Review.query.get(review_id)
+        if review and review.user_id == user_id:
+            db.session.delete(review)
+            db.session.commit()
+            return {"message": "Review deleted"}, 200
+        return {"message": "Review not found or unauthorized"}, 404
+
+    @jwt_required()
+    def patch(self, review_id):
+        user_id = get_jwt_identity()
+        review = Review.query.get(review_id)
+        if review and review.user_id == user_id:
+            data = request.get_json()
+            review.body = data.get('body', review.body)
+            db.session.commit()
+            return {"message": "Review updated"}, 200
+        return {"message": "Review not found or unauthorized"}, 404
+
+api.add_resource(UserReviews, '/user/reviews', '/user/reviews/<int:review_id>')
 
 if __name__ == '__main__':
     app.run(debug=True)
