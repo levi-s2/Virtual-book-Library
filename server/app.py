@@ -18,7 +18,7 @@ migrate = Migrate(app, db)
 db.init_app(app)
 bcrypt.init_app(app)
 api = Api(app)
-CORS(app)
+CORS(app, resources={r"*": {"origins": "*"}})
 jwt = JWTManager(app)
 
 class Home(Resource):
@@ -226,6 +226,13 @@ class UserReviews(Resource):
         return {"message": "Review not found or unauthorized"}, 404
 
 api.add_resource(UserReviews, '/user/reviews', '/user/reviews/<int:review_id>')
+
+
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH')
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True)
