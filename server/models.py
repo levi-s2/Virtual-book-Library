@@ -116,6 +116,19 @@ class Genre(db.Model, SerializerMixin):
             "id": self.id,
             "genre": self.genre
         }
+    
+
+class Recommendation(db.Model, SerializerMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    author = db.Column(db.String(100), nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "author": self.author
+        }
 
 
 user_books = db.Table('user_books',

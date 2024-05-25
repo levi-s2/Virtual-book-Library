@@ -9,6 +9,7 @@ import UserBooks from './UserBooks';
 import BookDetails from './BookDetails';
 import UserReviews from './UserReviews';
 import AboutUs from './AboutUs';
+import Recommendations from './Recommendations'; // Import the Recommendations component
 import NavBar from './NavBar';
 import './BookCard.css';
 
@@ -188,6 +189,9 @@ const App = () => {
           </Route>
           <Route path="/user/reviews">
             {user ? <UserReviews /> : <Login onLogin={handleLogin} />}
+          </Route>
+          <Route path="/recommendations">
+            {user ? <Recommendations user={user} /> : <Login onLogin={handleLogin} />}
           </Route>
         </Switch>
       </div>

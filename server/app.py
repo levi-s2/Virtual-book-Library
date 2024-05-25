@@ -3,7 +3,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_restful import Api, Resource
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from models import db, bcrypt, User, Book, Review, Genre
+from models import db, bcrypt, User, Book, Review, Genre, Recommendation
 import os
 import traceback
 
@@ -226,6 +226,27 @@ class UserReviews(Resource):
         return {"message": "Review not found or unauthorized"}, 404
 
 api.add_resource(UserReviews, '/user/reviews', '/user/reviews/<int:review_id>')
+
+
+class RecommendationsResource(Resource):
+    def get(self):
+        recommendations = Recommendation.query.all()
+        response = [rec.to_dict() for rec in recommendations]
+        return make_response(jsonify(response), 200)
+
+    @jwt_required()
+    def post(self):
+        try:
+            data = request.get_json()
+            new_rec = Recommendation(title=data['title'], author=data['author'])
+            db.session.add(new_rec)
+            db.session.commit()
+            return make_response(new_rec.to_dict(), 201)
+        except Exception as e:
+            traceback.print_exc()
+            return {"message": "Internal Server Error"}, 500
+
+api.add_resource(RecommendationsResource, '/recommendations')
 
 
 def after_request(response):
