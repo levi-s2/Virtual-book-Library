@@ -9,7 +9,6 @@ function SearchBar() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    // Handle search functionality
   };
 
   return (

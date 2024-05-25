@@ -28,7 +28,7 @@ const BookDetails = () => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        await axios.post(
+        const response = await axios.post(
           'http://localhost:5000/reviews',
           { book_id: book.id, review },
           {
@@ -37,7 +37,8 @@ const BookDetails = () => {
             },
           }
         );
-        setReviews([...reviews, { body: review }]);
+        const newReview = { body: review, user: { name: response.data.user.name } };
+        setReviews([...reviews, newReview]);
         setReview('');
         setReviewFormVisible(false);
       } catch (error) {
@@ -53,24 +54,14 @@ const BookDetails = () => {
       {book ? (
         <>
           <div className="book-card">
-            <img src={book.image_url} alt={book.title} className="book-image" />
+            <img className="book-image" src={book.image_url} alt={book.title} />
             <h2>{book.title}</h2>
             <p>{book.author}</p>
-            <button
-              onClick={() => alert('Book added to list')}
-              className="add-to-list-button"
-            >
-              Add to List
-            </button>
+            <button className="add-to-list-button">Add to My List</button>
           </div>
           <div className="reviews-section">
             <h3>Reviews</h3>
-            <button
-              className="add-review-button"
-              onClick={() => setReviewFormVisible(true)}
-            >
-              Add a Review
-            </button>
+            <button className="add-review-button" onClick={() => setReviewFormVisible(true)}>Add a Review</button>
             {isReviewFormVisible && (
               <form className="review-form" onSubmit={handleReviewSubmit}>
                 <textarea
@@ -83,7 +74,9 @@ const BookDetails = () => {
             )}
             <ul className="reviews-list">
               {reviews.map((r, index) => (
-                <li key={index} className="review-item">{r.body}</li>
+                <li key={index} className="review-item">
+                  <p><strong>{r.user.name}:</strong> {r.body}</p>
+                </li>
               ))}
             </ul>
           </div>

@@ -1,7 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from sqlalchemy_serializer import SerializerMixin
-from sqlalchemy.ext.hybrid import hybrid_property
 from flask_bcrypt import Bcrypt
 
 metadata = MetaData()
@@ -37,7 +36,6 @@ class User(db.Model, SerializerMixin):
         return {
             "id": self.id,
             "name": self.name,
-            # Password should generally not be serialized for security reasons
         }
 
 

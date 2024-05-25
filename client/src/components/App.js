@@ -125,7 +125,6 @@ const App = () => {
         setUserBooks([...userBooks, books.find(book => book.id === bookId)]);
       } catch (error) {
         console.error('Error adding book to list:', error);
-        // Optional: handle specific error scenarios
       }
     } else {
       alert('You need to be logged in to add books to your list.');

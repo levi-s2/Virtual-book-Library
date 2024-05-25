@@ -9,9 +9,7 @@ const CreateUserForm = () => {
     e.preventDefault();
     try {
       await createUser({ name, password });
-      // Optionally, you can redirect to another page or show a success message
     } catch (error) {
-      // Handle error
     }
   };
 

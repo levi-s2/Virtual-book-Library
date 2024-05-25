@@ -1,5 +1,6 @@
 import React from 'react';
 import './BookCard.css';
+import './HomePage.css'; 
 
 const HomePage = ({ onSearch, books, searchTerm, onAddToMyList, userBooks, genres, selectedGenre, onGenreChange }) => {
   const handleSearchChange = (e) => {
@@ -10,37 +11,31 @@ const HomePage = ({ onSearch, books, searchTerm, onAddToMyList, userBooks, genre
     onGenreChange(e.target.value);
   };
 
-  // Add console logs for debugging
-  console.log('Books:', books);
-  console.log('Selected Genre:', selectedGenre);
-  console.log('Genres:', genres);
-
   const filteredBooks = books.filter((book) => {
     const matchesSearchTerm = book.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesGenre = selectedGenre ? book.genre.id === parseInt(selectedGenre) : true;
     return matchesSearchTerm && matchesGenre;
   });
 
-  // Add console log for filtered books
-  console.log('Filtered Books:', filteredBooks);
-
   return (
     <div className="home-page">
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Search books..."
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
-        <select value={selectedGenre} onChange={handleGenreChange}>
-          <option value="">All Genres</option>
-          {genres.map((genre) => (
-            <option key={genre.id} value={genre.id}>
-              {genre.genre}
-            </option>
-          ))}
-        </select>
+      <div className="search-bar-container">
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder="Search books..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+          <select value={selectedGenre} onChange={handleGenreChange}>
+            <option value="">All Genres</option>
+            {genres.map((genre) => (
+              <option key={genre.id} value={genre.id}>
+                {genre.genre}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
       <div className="book-list">
         {filteredBooks.map((book) => (

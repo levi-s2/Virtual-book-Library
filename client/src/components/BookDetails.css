@@ -16,8 +16,8 @@
     width: 250px;
     text-align: center;
     margin-right: 20px;
-    border: 2px solid #007bff; /* Blue outline */
-    margin-top: 1px; /* Adjust this value to align under the navbar */
+    border: 2px solid #007bff;
+    margin-top: 1px; 
   }
   
   .book-image {
@@ -49,8 +49,8 @@
   
   .reviews-section {
     flex-grow: 1;
-    margin-left: 20px; /* Ensure there is some spacing */
-    margin-top: 1px; /* Align this with the book card */
+    margin-left: 20px; 
+    margin-top: 1px; 
   }
   
   .reviews-section h3 {
