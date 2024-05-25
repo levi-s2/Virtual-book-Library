@@ -8,6 +8,7 @@ import Login from './Login';
 import UserBooks from './UserBooks';
 import BookDetails from './BookDetails';
 import UserReviews from './UserReviews';
+import AboutUs from './AboutUs';
 import NavBar from './NavBar';
 import './BookCard.css';
 
@@ -159,9 +160,19 @@ const App = () => {
         <NavBar user={user} handleLogout={handleLogout} />
         <Switch>
           <Route path="/" exact>
-            <>
-              <HomePage onSearch={handleSearch} books={books} searchTerm={searchTerm} onAddToMyList={addToMyList} userBooks={userBooks} genres={genres} selectedGenre={selectedGenre} onGenreChange={handleGenreChange} />
-            </>
+            <HomePage
+              onSearch={handleSearch}
+              books={books}
+              searchTerm={searchTerm}
+              onAddToMyList={addToMyList}
+              userBooks={userBooks}
+              genres={genres}
+              selectedGenre={selectedGenre}
+              onGenreChange={handleGenreChange}
+            />
+          </Route>
+          <Route path="/about" exact>
+            <AboutUs /> 
           </Route>
           <Route path="/books/:id" exact>
             <BookDetails />
