@@ -67,11 +67,12 @@ const Recommendations = ({ user }) => {
           <button type="submit">Submit Recommendation</button>
         </form>
       )}
-      <div className="recommendation-list">
+      <div className="recommendations-list">
         {recommendations.map((rec) => (
           <div key={rec.id} className="recommendation-card">
             <h3>{rec.title}</h3>
             <p>{rec.author}</p>
+            <p>Recommended by: {rec.user.name}</p>
           </div>
         ))}
       </div>

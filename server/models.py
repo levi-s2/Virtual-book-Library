@@ -15,8 +15,9 @@ class User(db.Model, SerializerMixin):
 
     reviews = db.relationship('Review', back_populates="user", cascade='all, delete-orphan')
     books = db.relationship('Book', secondary='user_books', back_populates='users')
-
-    serialize_rules = ('-books.users', '-reviews.user')
+    recommendations = db.relationship('Recommendation', back_populates='user')
+    
+    serialize_rules = ('-books.users', '-reviews.user', '-recommendations.user')
 
     @property
     def password_hash(self):
@@ -122,13 +123,22 @@ class Recommendation(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     author = db.Column(db.String(100), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', back_populates='recommendations')
+
+    serialize_rules = ('-user.recommendations',)
 
     def to_dict(self):
         return {
             "id": self.id,
             "title": self.title,
-            "author": self.author
+            "author": self.author,
+            "user": {
+                "id": self.user.id,
+                "name": self.user.name
+            }
         }
+
 
 
 user_books = db.Table('user_books',

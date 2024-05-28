@@ -234,25 +234,34 @@ class UserReviews(Resource):
 api.add_resource(UserReviews, '/user/reviews', '/user/reviews/<int:review_id>')
 
 
-class RecommendationsResource(Resource):
+class Recommendations(Resource):
+    @jwt_required()
     def get(self):
         recommendations = Recommendation.query.all()
-        response = [rec.to_dict() for rec in recommendations]
-        return make_response(jsonify(response), 200)
+        response = make_response([rec.to_dict() for rec in recommendations], 200)
+        return response
 
     @jwt_required()
     def post(self):
         try:
+            user_id = get_jwt_identity()
+            if not user_id:
+                return {"message": "User not found"}, 404
+
             data = request.get_json()
-            new_rec = Recommendation(title=data['title'], author=data['author'])
-            db.session.add(new_rec)
+            new_recommendation = Recommendation(
+                title=data.get('title'),
+                author=data.get('author'),
+                user_id=user_id
+            )
+            db.session.add(new_recommendation)
             db.session.commit()
-            return make_response(new_rec.to_dict(), 201)
+            return make_response(new_recommendation.to_dict(), 201)
         except Exception as e:
             traceback.print_exc()
             return {"message": "Internal Server Error"}, 500
 
-api.add_resource(RecommendationsResource, '/recommendations')
+api.add_resource(Recommendations, '/recommendations')
 
 
 def after_request(response):
