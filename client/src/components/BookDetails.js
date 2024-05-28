@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import './BookDetails.css';
+import { jwtDecode } from 'jwt-decode';
 
 const BookDetails = () => {
   const { id } = useParams();
@@ -9,6 +10,7 @@ const BookDetails = () => {
   const [review, setReview] = useState('');
   const [reviews, setReviews] = useState([]);
   const [isReviewFormVisible, setReviewFormVisible] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -25,6 +27,11 @@ const BookDetails = () => {
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
+    if (!review.trim()) {
+      setError('Review cannot be empty.');
+      return;
+    }
+
     const token = localStorage.getItem('token');
     if (token) {
       try {
@@ -37,10 +44,12 @@ const BookDetails = () => {
             },
           }
         );
-        const newReview = { body: review, user: { name: response.data.user.name } };
+        const newReview = response.data;
         setReviews([...reviews, newReview]);
         setReview('');
         setReviewFormVisible(false);
+        setError('');
+        window.location.reload()
       } catch (error) {
         console.error('Error adding review:', error);
       }
@@ -69,13 +78,14 @@ const BookDetails = () => {
                   onChange={(e) => setReview(e.target.value)}
                   placeholder="Write your review here"
                 />
+                {error && <p className="error-message">{error}</p>}
                 <button type="submit">Submit Review</button>
               </form>
             )}
             <ul className="reviews-list">
               {reviews.map((r, index) => (
                 <li key={index} className="review-item">
-                  <p><strong>{r.user.name}:</strong> {r.body}</p>
+                  <p><strong>{r.user?.name}:</strong> {r.body}</p>
                 </li>
               ))}
             </ul>

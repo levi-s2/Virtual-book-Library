@@ -6,12 +6,12 @@ const NavBar = ({ user, handleLogout }) => {
   return (
     <nav className="navbar">
       <Link to="/">Home</Link>
-      <Link to="/about">About Us</Link>
+      <Link to="/user/books">My Book List</Link>
+      <Link to="/user/reviews"> My Reviews</Link>
       <Link to="/recommendations">Recommendations</Link>
+      <Link to="/about">About Us</Link>
       {user ? (
         <>
-          <Link to="/user/books">My Book List</Link>
-          <Link to="/user/reviews">Reviews</Link>
           <button onClick={handleLogout}>Logout</button>
         </>
       ) : (

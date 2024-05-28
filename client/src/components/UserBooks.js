@@ -27,6 +27,9 @@ const UserBooks = ({ userBooks, onRemoveFromMyList }) => {
               <img src={book.image_url} alt={book.title} />
               <h3>{book.title}</h3>
               <p>{book.author}</p>
+              <Link to={`/books/${book.id}`}>
+                <button>Add a Review</button>
+              </Link>
               <button onClick={() => onRemoveFromMyList(book.id)}>Remove from List</button>
             </div>
           ))

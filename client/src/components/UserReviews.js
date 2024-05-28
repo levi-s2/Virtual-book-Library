@@ -51,6 +51,11 @@ const UserReviews = ({ user }) => {
   };
 
   const handleUpdateReview = async (reviewId) => {
+    if (editReviewBody.trim() === '') {
+      alert('Review cannot be empty');
+      return;
+    }
+
     const token = localStorage.getItem('token');
     try {
       await axios.patch(`http://localhost:5000/user/reviews/${reviewId}`, {
