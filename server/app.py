@@ -183,16 +183,22 @@ class Reviews(Resource):
             if not book:
                 return {"message": "Book not found"}, 404
 
+            # Check if the user has already reviewed this book
+            existing_review = Review.query.filter_by(user_id=user_id, book_id=book_id).first()
+            if existing_review:
+                return {"message": "You have already reviewed this book"}, 400
+
             new_review = Review(body=review_body, user_id=user.id, book_id=book.id)
             db.session.add(new_review)
             db.session.commit()
 
-            return {"message": "Review added successfully"}, 201
+            return {"message": "Review added successfully", "review": new_review.to_dict()}, 201
         except Exception as e:
             traceback.print_exc()
             return {"message": "Internal Server Error"}, 500
 
 api.add_resource(Reviews, '/reviews')
+
 
 
 class UserReviews(Resource):
