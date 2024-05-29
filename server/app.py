@@ -2,8 +2,9 @@ from flask import Flask, jsonify, request, make_response
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_restful import Api, Resource
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity, create_refresh_token, get_jwt)
 from models import db, bcrypt, User, Book, Review, Genre, Recommendation
+from datetime import timedelta
 import os
 import traceback
 
@@ -12,7 +13,9 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DATABASE = os.environ.get("DB_URI", f"sqlite:///{os.path.join(BASE_DIR, 'app.db')}")
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key' 
+app.config['JWT_SECRET_KEY'] = 'your_secret_key'
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30) 
 
 migrate = Migrate(app, db)
 db.init_app(app)
@@ -102,11 +105,22 @@ class Login(Resource):
                 return {"message": "Invalid username or password"}, 401
 
             access_token = create_access_token(identity=user.id)
-            return {"access_token": access_token}, 200
+            refresh_token = create_refresh_token(identity=user.id)
+            return {"access_token": access_token, "refresh_token": refresh_token}, 200
         except Exception as e:
             print(f"Error during login: {e}")
             traceback.print_exc()
             return {"message": "Internal Server Error"}, 500
+
+class TokenRefresh(Resource):
+    @jwt_required(refresh=True)
+    def post(self):
+        current_user_id = get_jwt_identity()
+        new_access_token = create_access_token(identity=current_user_id)
+        return {"access_token": new_access_token}, 200
+
+api.add_resource(TokenRefresh, '/refresh', endpoint='refresh_endpoint')
+
 
 class Protected(Resource):
     @jwt_required()

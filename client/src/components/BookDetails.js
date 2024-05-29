@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from "./axiosConfig";
 import { useParams } from 'react-router-dom';
 import './BookDetails.css';
 import { jwtDecode } from 'jwt-decode';

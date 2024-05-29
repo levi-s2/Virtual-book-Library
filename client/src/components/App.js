@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Switch, useHistory } from 'react-router-dom';
-import axios from 'axios';
+import axios from "./axiosConfig";
 import { jwtDecode } from 'jwt-decode';
 import HomePage from './HomePage';
 import Register from './Register';
@@ -92,9 +92,10 @@ const App = () => {
 
   const handleLogin = async (name, password) => {
     try {
-      const response = await axios.post('http://localhost:5000/login', { name, password });
-      const { access_token } = response.data;
+      const response = await axios.post('/login', { name, password });
+      const { access_token, refresh_token } = response.data;
       localStorage.setItem('token', access_token);
+      localStorage.setItem('refresh_token', refresh_token);
       const decoded = jwtDecode(access_token);
       setUser(decoded);
       alert('Login successful!');
@@ -199,4 +200,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default App
