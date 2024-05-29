@@ -9,9 +9,8 @@ import UserBooks from './UserBooks';
 import BookDetails from './BookDetails';
 import UserReviews from './UserReviews';
 import AboutUs from './AboutUs';
-import Recommendations from './Recommendations'; // Import the Recommendations component
+import Recommendations from './Recommendations';
 import NavBar from './NavBar';
-import './BookCard.css';
 
 const App = () => {
   const [books, setBooks] = useState([]);

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from "./axiosConfig";
 import ClipLoader from 'react-spinners/ClipLoader';
 import { Link } from 'react-router-dom';
-import './UserReviews.css';
+import './css/UserReviews.css';
 
 const UserReviews = ({ user }) => {
   const [reviews, setReviews] = useState([]);

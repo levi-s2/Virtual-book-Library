@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from "./axiosConfig";
-import './Recommendations.css';
+import './css/Recommendations.css';
 
 const Recommendations = ({ user }) => {
   const [recommendations, setRecommendations] = useState([]);

@@ -1,6 +1,6 @@
 import React from 'react';
-import './BookCard.css';
-import './HomePage.css'; 
+import './css/BookCard.css';
+import './css/HomePage.css'; 
 
 const HomePage = ({ onSearch, books, searchTerm, onAddToMyList, userBooks, genres, selectedGenre, onGenreChange }) => {
   const handleSearchChange = (e) => {
