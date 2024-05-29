@@ -82,7 +82,6 @@ const App = () => {
         }
       });
       console.log('Registration response:', response);
-      alert('Registration successful!');
     } catch (error) {
       console.error('Registration failed:', error);
       alert('Registration failed: ' + error.response.data.message);
@@ -97,8 +96,8 @@ const App = () => {
       localStorage.setItem('refresh_token', refresh_token);
       const decoded = jwtDecode(access_token);
       setUser(decoded);
-      alert('Login successful!');
       history.push('/');
+      window.location.reload()
     } catch (error) {
       alert('Login failed: ' + error.response.data.message);
     }
@@ -108,7 +107,6 @@ const App = () => {
     localStorage.removeItem('token');
     setUser(null);
     setUserBooks([]);
-    alert('Logged out successfully!');
   };
 
   const addToMyList = async (bookId) => {
