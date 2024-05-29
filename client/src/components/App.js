@@ -174,7 +174,11 @@ const App = () => {
             <AboutUs /> 
           </Route>
           <Route path="/books/:id" exact>
-            <BookDetails />
+            <BookDetails
+              onAddToMyList={addToMyList}
+              userBooks={userBooks}
+
+            />
           </Route>
           <Route path="/register">
             <Register onRegister={handleRegister} />

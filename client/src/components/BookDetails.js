@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import './css/BookDetails.css';
 import { jwtDecode } from 'jwt-decode';
 
-const BookDetails = () => {
+const BookDetails = ({ onAddToMyList, userBooks }) => {
   const { id } = useParams();
   const [book, setBook] = useState(null);
   const [review, setReview] = useState('');
@@ -79,7 +79,14 @@ const BookDetails = () => {
             <img className="book-image" src={book.image_url} alt={book.title} />
             <h2>{book.title}</h2>
             <p>{book.author}</p>
-            <button className="add-to-list-button">Add to My List</button>
+            <button
+              onClick={() => onAddToMyList(book.id)}
+              disabled={userBooks.some((userBook) => userBook.id === book.id)}
+            >
+              {userBooks.some((userBook) => userBook.id === book.id)
+                ? 'Added to List'
+                : 'Add to My List'}
+            </button>
           </div>
           <div className="reviews-section">
             <h3>Reviews</h3>
