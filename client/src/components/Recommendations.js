@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from "./axiosConfig";
+import axios from 'axios';
 import './css/Recommendations.css';
 
 const Recommendations = ({ user }) => {
@@ -48,7 +48,7 @@ const Recommendations = ({ user }) => {
   return (
     <div className="recommendations-container">
       <h2>Book Recommendations</h2>
-      {user && (
+      {user ? (
         <form onSubmit={handleRecommendationSubmit}>
           <input
             type="text"
@@ -66,6 +66,8 @@ const Recommendations = ({ user }) => {
           />
           <button type="submit">Submit Recommendation</button>
         </form>
+      ) : (
+        <p>Please log in to submit a recommendation.</p>
       )}
       <div className="recommendations-list">
         {recommendations.map((rec) => (

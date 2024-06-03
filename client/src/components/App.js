@@ -105,6 +105,7 @@ const App = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
     setUser(null);
     setUserBooks([]);
   };
@@ -177,7 +178,6 @@ const App = () => {
             <BookDetails
               onAddToMyList={addToMyList}
               userBooks={userBooks}
-
             />
           </Route>
           <Route path="/register">
@@ -193,7 +193,7 @@ const App = () => {
             {user ? <UserReviews /> : <Login onLogin={handleLogin} />}
           </Route>
           <Route path="/recommendations">
-            {user ? <Recommendations user={user} /> : <Login onLogin={handleLogin} />}
+            <Recommendations user={user} />
           </Route>
         </Switch>
       </div>
@@ -201,4 +201,4 @@ const App = () => {
   );
 };
 
-export default App
+export default App;
