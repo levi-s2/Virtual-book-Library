@@ -3,7 +3,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_restful import Api, Resource
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity, create_refresh_token, get_jwt)
-from models import db, bcrypt, User, Book, Review, Genre, Recommendation
+from models import db, bcrypt, User, Book, Review, Genre, Recommendation, user_books
 from datetime import timedelta
 import os
 import traceback
@@ -15,7 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'your_secret_key'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)
-app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30) 
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)
 
 migrate = Migrate(app, db)
 db.init_app(app)
@@ -133,13 +133,25 @@ api.add_resource(Register, '/register', endpoint='register_endpoint')
 api.add_resource(Login, '/login', endpoint='login_endpoint')
 api.add_resource(Protected, '/protected', endpoint='protected_endpoint')
 
+
 class UserBooks(Resource):
     @jwt_required()
     def get(self):
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
-        user_books = [book.to_dict() for book in user.books]
-        return make_response(jsonify(user_books), 200)
+        user_books_with_ratings = []
+
+        for book in user.books:
+            user_book = db.session.query(user_books).filter_by(user_id=user_id, book_id=book.id).first()
+            user_books_with_ratings.append({
+                'id': book.id,
+                'title': book.title,
+                'author': book.author,
+                'image_url': book.image_url,
+                'rating': user_book.rating if user_book else None
+            })
+
+        return make_response(jsonify(user_books_with_ratings), 200)
 
     @jwt_required()
     def post(self):
@@ -147,6 +159,7 @@ class UserBooks(Resource):
             user_id = get_jwt_identity()
             data = request.get_json()
             book_id = data.get('bookId')
+            rating = data.get('rating')  # Getting the rating from the request data
             user = User.query.get(user_id)
             book = Book.query.get(book_id)
 
@@ -156,7 +169,41 @@ class UserBooks(Resource):
             user.books.append(book)
             db.session.commit()
 
+            user_book = db.session.query(user_books).filter_by(user_id=user_id, book_id=book_id).first()
+            if user_book:
+                db.session.execute(
+                    user_books.update().
+                    where(user_books.c.user_id == user_id).
+                    where(user_books.c.book_id == book_id).
+                    values(rating=rating)
+                )
+                db.session.commit()
+
             return make_response({"message": "Book added to list"}, 201)
+        except Exception as e:
+            traceback.print_exc()
+            return make_response({"message": "Internal Server Error"}, 500)
+
+    @jwt_required()
+    def put(self, book_id):
+        try:
+            user_id = get_jwt_identity()
+            data = request.get_json()
+            rating = data.get('rating')  # Getting the rating from the request data
+            user_book = db.session.query(user_books).filter_by(user_id=user_id, book_id=book_id).first()
+
+            if not user_book:
+                return make_response({"message": "Book not in list"}, 400)
+
+            db.session.execute(
+                user_books.update().
+                where(user_books.c.user_id == user_id).
+                where(user_books.c.book_id == book_id).
+                values(rating=rating)
+            )
+            db.session.commit()
+
+            return make_response({"message": "Rating updated"}, 200)
         except Exception as e:
             traceback.print_exc()
             return make_response({"message": "Internal Server Error"}, 500)
@@ -197,7 +244,6 @@ class Reviews(Resource):
             if not book:
                 return {"message": "Book not found"}, 404
 
-            # Check if the user has already reviewed this book
             existing_review = Review.query.filter_by(user_id=user_id, book_id=book_id).first()
             if existing_review:
                 return {"message": "You have already reviewed this book"}, 400

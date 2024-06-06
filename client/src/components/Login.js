@@ -1,39 +1,54 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import './css/login.css';
 
 const Login = ({ onLogin }) => {
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');
+  const initialValues = {
+    name: '',
+    password: '',
+  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onLogin(name, password);
+  const validationSchema = Yup.object({
+    name: Yup.string().required('Name is required'),
+    password: Yup.string().required('Password is required'),
+  });
+
+  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+    try {
+      await onLogin(values.name, values.password);
+    } catch (error) {
+      setErrors({ general: 'Login failed: ' + error.message });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="login-container">
       <h2>Login</h2>
-      <form onSubmit={handleSubmit} className="login-form">
-        <div className="form-group">
-          <label>Name:</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="form-input"
-          />
-        </div>
-        <div className="form-group">
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="form-input"
-          />
-        </div>
-        <button type="submit" className="login-button">Login</button>
-      </form>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ isSubmitting, errors }) => (
+          <Form className="login-form">
+            <div className="form-group">
+              <label>Name:</label>
+              <Field name="name" type="text" className="form-input" />
+              <ErrorMessage name="name" component="div" className="error-message" />
+            </div>
+            <div className="form-group">
+              <label>Password:</label>
+              <Field name="password" type="password" className="form-input" />
+              <ErrorMessage name="password" component="div" className="error-message" />
+            </div>
+            <button type="submit" className="login-button" disabled={isSubmitting}>Login</button>
+            {errors.general && <p className="error-message">{errors.general}</p>}
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 };

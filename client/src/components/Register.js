@@ -1,50 +1,58 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import './css/register.css';
 
 const Register = ({ onRegister }) => {
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const initialValues = {
+    name: '',
+    password: '',
+  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const validationSchema = Yup.object({
+    name: Yup.string().required('Name is required').min(3, 'Name must be at least 3 characters'),
+    password: Yup.string().required('Password is required').min(6, 'Password must be at least 6 characters'),
+  });
+
+  const handleSubmit = async (values, { setSubmitting, setErrors, setStatus }) => {
     try {
-      await onRegister(name, password);
-      setSuccess('Registration successful!');
-      setError(null);
+      await onRegister(values.name, values.password);
+      setStatus({ success: 'Registration successful!' });
+      setErrors({});
     } catch (error) {
-      setError('Registration failed: ' + error.message);
-      setSuccess(null);
+      setErrors({ general: 'Registration failed: ' + error.message });
+      setStatus({ success: null });
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
     <div className="register-container">
       <h2>Register</h2>
-      <form onSubmit={handleSubmit} className="register-form">
-        <div className="form-group">
-          <label>Name:</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="form-input"
-          />
-        </div>
-        <div className="form-group">
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="form-input"
-          />
-        </div>
-        <button type="submit" className="register-button">Register</button>
-      </form>
-      {error && <p className="error-message">{error}</p>}
-      {success && <p className="success-message">{success}</p>}
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ isSubmitting, status, errors }) => (
+          <Form className="register-form">
+            <div className="form-group">
+              <label>Name:</label>
+              <Field name="name" type="text" className="form-input" />
+              <ErrorMessage name="name" component="div" className="error-message" />
+            </div>
+            <div className="form-group">
+              <label>Password:</label>
+              <Field name="password" type="password" className="form-input" />
+              <ErrorMessage name="password" component="div" className="error-message" />
+            </div>
+            <button type="submit" className="register-button" disabled={isSubmitting}>Register</button>
+            {status && status.success && <p className="success-message">{status.success}</p>}
+            {errors.general && <p className="error-message">{errors.general}</p>}
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 };

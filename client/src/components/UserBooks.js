@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { Link } from 'react-router-dom';
 import './css/BookCard.css';
+import axios from './axiosConfig';
 
 const UserBooks = ({ userBooks, onRemoveFromMyList }) => {
   const [loading, setLoading] = useState(true);
@@ -11,6 +12,23 @@ const UserBooks = ({ userBooks, onRemoveFromMyList }) => {
       setLoading(false);
     }
   }, [userBooks]);
+
+  const handleRatingChange = async (bookId, rating) => {
+    const token = localStorage.getItem('token');
+    try {
+      await axios.put(
+        `http://localhost:5000/user/books/${bookId}`,
+        { rating },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    } catch (error) {
+      console.error('Error updating rating:', error);
+    }
+  };
 
   return (
     <div className="user-books-container">
@@ -27,9 +45,16 @@ const UserBooks = ({ userBooks, onRemoveFromMyList }) => {
               <img src={book.image_url} alt={book.title} />
               <h3>{book.title}</h3>
               <p>{book.author}</p>
-              <Link to={`/books/${book.id}`}>
-                <button>Add a Review</button>
-              </Link>
+              <label>
+                Rating:
+                <input
+                  type="number"
+                  min="1"
+                  max="5"
+                  value={book.rating || ''}
+                  onChange={(e) => handleRatingChange(book.id, e.target.value)}
+                />
+              </label>
               <button onClick={() => onRemoveFromMyList(book.id)}>Remove from List</button>
             </div>
           ))

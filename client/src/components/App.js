@@ -110,13 +110,13 @@ const App = () => {
     setUserBooks([]);
   };
 
-  const addToMyList = async (bookId) => {
+  const addToMyList = async (bookId, rating) => {
     if (user) {
       try {
         const token = localStorage.getItem('token');
         await axios.post(
           `http://localhost:5000/user/books`,
-          { bookId },
+          { bookId, rating }, // Including rating in the request body
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -131,6 +131,7 @@ const App = () => {
       alert('You need to be logged in to add books to your list.');
     }
   };
+  
 
   const removeFromMyList = async (bookId) => {
     if (user) {

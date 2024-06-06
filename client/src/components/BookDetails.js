@@ -4,13 +4,14 @@ import { useParams } from 'react-router-dom';
 import './css/BookDetails.css';
 import { jwtDecode } from 'jwt-decode';
 
-const BookDetails = ({ onAddToMyList, userBooks }) => {
+const BookDetails = ({ onAddToMyList }) => {
   const { id } = useParams();
   const [book, setBook] = useState(null);
   const [review, setReview] = useState('');
   const [reviews, setReviews] = useState([]);
   const [isReviewFormVisible, setReviewFormVisible] = useState(false);
   const [userReviewExists, setUserReviewExists] = useState(false);
+  const [rating, setRating] = useState('');
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -35,6 +36,15 @@ const BookDetails = ({ onAddToMyList, userBooks }) => {
     fetchBook();
   }, [id]);
 
+  const handleAddToMyList = async () => {
+    if (rating.trim() === '') {
+      alert('Rating cannot be empty');
+      return;
+    }
+    onAddToMyList(book.id, rating);
+  };
+  
+
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
     if (review.trim() === '') {
@@ -58,7 +68,7 @@ const BookDetails = ({ onAddToMyList, userBooks }) => {
         setReview('');
         setReviewFormVisible(false);
         setUserReviewExists(true);
-        window.location.reload()
+        window.location.reload();
       } catch (error) {
         if (error.response && error.response.status === 400) {
           alert(error.response.data.message);
@@ -79,14 +89,17 @@ const BookDetails = ({ onAddToMyList, userBooks }) => {
             <img className="book-image" src={book.image_url} alt={book.title} />
             <h2>{book.title}</h2>
             <p>{book.author}</p>
-            <button
-              onClick={() => onAddToMyList(book.id)}
-              disabled={userBooks.some((userBook) => userBook.id === book.id)}
-            >
-              {userBooks.some((userBook) => userBook.id === book.id)
-                ? 'Added to List'
-                : 'Add to My List'}
-            </button>
+            <label>
+              Rating:
+              <input
+                type="number"
+                min="1"
+                max="5"
+                value={rating}
+                onChange={(e) => setRating(e.target.value)}
+              />
+            </label>
+            <button className="add-to-list-button" onClick={handleAddToMyList}>Add to My List</button>
           </div>
           <div className="reviews-section">
             <h3>Reviews</h3>
