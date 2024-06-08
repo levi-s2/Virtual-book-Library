@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { Link } from 'react-router-dom';
-import './css/BookCard.css';
 import axios from './axiosConfig';
 
 const UserBooks = ({ userBooks, onRemoveFromMyList }) => {

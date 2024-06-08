@@ -3,15 +3,17 @@ import axios from "./axiosConfig";
 import { useParams } from 'react-router-dom';
 import './css/BookDetails.css';
 import { jwtDecode } from 'jwt-decode';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import StarRatingComponent from 'react-star-rating-component';
 
 const BookDetails = ({ onAddToMyList }) => {
   const { id } = useParams();
   const [book, setBook] = useState(null);
-  const [review, setReview] = useState('');
   const [reviews, setReviews] = useState([]);
   const [isReviewFormVisible, setReviewFormVisible] = useState(false);
   const [userReviewExists, setUserReviewExists] = useState(false);
-  const [rating, setRating] = useState('');
+  const [rating, setRating] = useState(0);
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -19,6 +21,7 @@ const BookDetails = ({ onAddToMyList }) => {
         const response = await axios.get(`http://localhost:5000/books/${id}`);
         setBook(response.data);
         setReviews(response.data.reviews || []);
+        setRating(response.data.user_rating || 0);
 
         const token = localStorage.getItem('token');
         if (token) {
@@ -36,27 +39,13 @@ const BookDetails = ({ onAddToMyList }) => {
     fetchBook();
   }, [id]);
 
-  const handleAddToMyList = async () => {
-    if (rating.trim() === '') {
-      alert('Rating cannot be empty');
-      return;
-    }
-    onAddToMyList(book.id, rating);
-  };
-  
-
-  const handleReviewSubmit = async (e) => {
-    e.preventDefault();
-    if (review.trim() === '') {
-      alert('Review cannot be empty');
-      return;
-    }
+  const handleReviewSubmit = async (values, { resetForm }) => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
         const response = await axios.post(
           'http://localhost:5000/reviews',
-          { book_id: book.id, review },
+          { book_id: book.id, review: values.review },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -65,10 +54,9 @@ const BookDetails = ({ onAddToMyList }) => {
         );
         const newReview = response.data.review;
         setReviews([...reviews, newReview]);
-        setReview('');
         setReviewFormVisible(false);
         setUserReviewExists(true);
-        window.location.reload();
+        resetForm();
       } catch (error) {
         if (error.response && error.response.status === 400) {
           alert(error.response.data.message);
@@ -81,6 +69,35 @@ const BookDetails = ({ onAddToMyList }) => {
     }
   };
 
+  const validationSchema = Yup.object().shape({
+    review: Yup.string()
+      .min(10, 'Review must be at least 10 characters long')
+      .required('Review is required')
+  });
+
+  const onStarClick = async (nextValue) => {
+    setRating(nextValue);
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        await axios.patch(
+          `http://localhost:5000/user/books/${id}`,
+          { rating: nextValue },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      } catch (error) {
+        console.error('Error updating rating:', error);
+      }
+    } else {
+      alert('You need to be logged in to rate a book.');
+    }
+};
+
+
   return (
     <div className="book-details-container">
       {book ? (
@@ -89,17 +106,18 @@ const BookDetails = ({ onAddToMyList }) => {
             <img className="book-image" src={book.image_url} alt={book.title} />
             <h2>{book.title}</h2>
             <p>{book.author}</p>
-            <label>
-              Rating:
-              <input
-                type="number"
-                min="1"
-                max="5"
+            <button className="add-to-list-button" onClick={() => onAddToMyList(book.id)}>
+              Add to My List
+            </button>
+            <div className="rating">
+              <h3>Rate this book:</h3>
+              <StarRatingComponent 
+                name="bookRating" 
+                starCount={5}
                 value={rating}
-                onChange={(e) => setRating(e.target.value)}
+                onStarClick={onStarClick}
               />
-            </label>
-            <button className="add-to-list-button" onClick={handleAddToMyList}>Add to My List</button>
+            </div>
           </div>
           <div className="reviews-section">
             <h3>Reviews</h3>
@@ -109,14 +127,19 @@ const BookDetails = ({ onAddToMyList }) => {
               </button>
             )}
             {isReviewFormVisible && (
-              <form className="review-form" onSubmit={handleReviewSubmit}>
-                <textarea
-                  value={review}
-                  onChange={(e) => setReview(e.target.value)}
-                  placeholder="Write your review here"
-                />
-                <button type="submit">Submit Review</button>
-              </form>
+              <Formik
+                initialValues={{ review: '' }}
+                validationSchema={validationSchema}
+                onSubmit={handleReviewSubmit}
+              >
+                {({ isSubmitting }) => (
+                  <Form className="review-form">
+                    <Field as="textarea" name="review" placeholder="Write your review here" />
+                    <ErrorMessage name="review" component="div" className="error-message" />
+                    <button type="submit" disabled={isSubmitting}>Submit Review</button>
+                  </Form>
+                )}
+              </Formik>
             )}
             <ul className="reviews-list">
               {reviews.map((r, index) => (
