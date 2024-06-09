@@ -2,6 +2,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from sqlalchemy_serializer import SerializerMixin
 from flask_bcrypt import Bcrypt
+from sqlalchemy.orm import validates
+import re
 
 metadata = MetaData()
 db = SQLAlchemy(metadata=metadata)
@@ -25,6 +27,8 @@ class User(db.Model, SerializerMixin):
 
     @password_hash.setter
     def password_hash(self, password):
+        if len(password) < 6:
+            raise ValueError("Password must be at least 6 characters long")
         self._password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def authenticate(self, password):
@@ -55,6 +59,20 @@ class Book(db.Model, SerializerMixin):
 
     serialize_rules = ('-users.books', '-genre.books', '-reviews.book')
 
+    @validates('title', 'author')
+    def validate_not_empty(self, key, value):
+        if not value:
+            raise ValueError(f'{key} cannot be empty')
+        if len(value) > 50:
+            raise ValueError(f'{key} cannot exceed 50 characters')
+        return value
+
+    @validates('image_url')
+    def validate_image_url(self, key, value):
+        if value and not re.match(r'^(http|https)://', value):
+            raise ValueError('Image URL must be a valid URL')
+        return value
+
     def __repr__(self):
         return f'<Book {self.id}. {self.title}, {self.author}>'
 
@@ -81,6 +99,12 @@ class Review(db.Model, SerializerMixin):
     book = db.relationship('Book', back_populates="reviews")
 
     serialize_rules = ('-user.reviews', '-book.reviews', '-user.books', '-book.genre')
+
+    @validates('body')
+    def validate_body(self, key, value):
+        if not value or len(value) < 10:
+            raise ValueError('Review body must be at least 10 characters long')
+        return value
 
     def __repr__(self):
         return f'<Review {self.id}, {self.body}>'
@@ -109,6 +133,14 @@ class Genre(db.Model, SerializerMixin):
 
     serialize_rules = ('-genre.books', '-reviews.book', '-users.books')
 
+    @validates('genre')
+    def validate_genre(self, key, value):
+        if not value:
+            raise ValueError('Genre cannot be empty')
+        if len(value) > 20:
+            raise ValueError('Genre cannot exceed 20 characters')
+        return value
+
     def __repr__(self):
         return f'<Genre {self.id}. {self.genre}>'
 
@@ -117,7 +149,7 @@ class Genre(db.Model, SerializerMixin):
             "id": self.id,
             "genre": self.genre
         }
-    
+
 
 class Recommendation(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -127,6 +159,14 @@ class Recommendation(db.Model, SerializerMixin):
     user = db.relationship('User', back_populates='recommendations')
 
     serialize_rules = ('-user.recommendations',)
+
+    @validates('title', 'author')
+    def validate_not_empty(self, key, value):
+        if not value:
+            raise ValueError(f'{key} cannot be empty')
+        if len(value) > 100:
+            raise ValueError(f'{key} cannot exceed 100 characters')
+        return value
 
     def to_dict(self):
         return {
@@ -138,7 +178,6 @@ class Recommendation(db.Model, SerializerMixin):
                 "name": self.user.name
             }
         }
-
 
 
 user_books = db.Table('user_books',

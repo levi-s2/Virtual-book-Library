@@ -41,12 +41,22 @@ class Books(Resource):
 api.add_resource(Books, '/books')
 
 class BookDetail(Resource):
+    @jwt_required(optional=True)
     def get(self, book_id):
         book = Book.query.get(book_id)
-        if book:
-            return make_response(jsonify(book.to_dict()), 200)
-        else:
+        if not book:
             return make_response(jsonify({"message": "Book not found"}), 404)
+
+        book_dict = book.to_dict()
+
+        user_id = get_jwt_identity()
+        if user_id:
+            user_book = db.session.query(user_books).filter_by(user_id=user_id, book_id=book_id).first()
+            book_dict['user_rating'] = user_book.rating if user_book else None
+        else:
+            book_dict['user_rating'] = None
+
+        return make_response(jsonify(book_dict), 200)
 
 api.add_resource(BookDetail, '/books/<int:book_id>')
 
@@ -159,7 +169,7 @@ class UserBooks(Resource):
             user_id = get_jwt_identity()
             data = request.get_json()
             book_id = data.get('bookId')
-            rating = data.get('rating')  # Getting the rating from the request data
+            rating = data.get('rating') 
             user = User.query.get(user_id)
             book = Book.query.get(book_id)
 
@@ -185,7 +195,7 @@ class UserBooks(Resource):
             return make_response({"message": "Internal Server Error"}, 500)
 
     @jwt_required()
-    def put(self, book_id):
+    def patch(self, book_id):
         try:
             user_id = get_jwt_identity()
             data = request.get_json()
@@ -227,6 +237,7 @@ class UserBooks(Resource):
             return make_response({"message": "Internal Server Error"}, 500)
 
 api.add_resource(UserBooks, '/user/books', '/user/books/<int:book_id>')
+
 
 
 class Reviews(Resource):

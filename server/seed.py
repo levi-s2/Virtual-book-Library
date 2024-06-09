@@ -1,4 +1,4 @@
-from models import db, User, Book, Review, Genre
+from models import db, User, Book, Review, Genre, Recommendation
 from app import app
 
 def seed_database():
@@ -42,11 +42,11 @@ def seed_database():
 
         # Create Users
         users = [
-            User(name="user1", password_hash="password1"),
-            User(name="user2", password_hash="password2"),
-            User(name="user3", password_hash="password3"),
-            User(name="user4", password_hash="password4"),
-            User(name="user5", password_hash="password5")
+            User(name="user1", password_hash="Password1!"),
+            User(name="user2", password_hash="Password2!"),
+            User(name="user3", password_hash="Password3!"),
+            User(name="user4", password_hash="Password4!"),
+            User(name="user5", password_hash="Password5!")
         ]
 
         db.session.add_all(users)
@@ -54,19 +54,31 @@ def seed_database():
 
         # Create Reviews
         reviews = [
-            Review(body="Great book!", user_id=1, book_id=1),
-            Review(body="Loved it!", user_id=1, book_id=2),
-            Review(body="A must-read.", user_id=2, book_id=3),
-            Review(body="Highly recommend.", user_id=2, book_id=4),
-            Review(body="An absolute classic.", user_id=3, book_id=5),
-            Review(body="Very insightful.", user_id=3, book_id=6),
-            Review(body="Beautifully written.", user_id=4, book_id=7),
-            Review(body="Couldn't put it down.", user_id=4, book_id=8),
-            Review(body="A bit slow.", user_id=5, book_id=9),
-            Review(body="Fantastic story!", user_id=5, book_id=10)
+            Review(body="Great book! Really enjoyed it.", user_id=1, book_id=1),
+            Review(body="Loved it! A masterpiece.", user_id=1, book_id=2),
+            Review(body="A must-read for everyone.", user_id=2, book_id=3),
+            Review(body="Highly recommend this book.", user_id=2, book_id=4),
+            Review(body="An absolute classic tale.", user_id=3, book_id=5),
+            Review(body="Very insightful and thought-provoking.", user_id=3, book_id=6),
+            Review(body="Beautifully written novel.", user_id=4, book_id=7),
+            Review(body="Couldn't put it down!", user_id=4, book_id=8),
+            Review(body="A bit slow, but worth it.", user_id=5, book_id=9),
+            Review(body="Fantastic story! Well done.", user_id=5, book_id=10)
         ]
 
         db.session.add_all(reviews)
+        db.session.commit()
+
+        # Create Recommendations
+        recommendations = [
+            Recommendation(title="The Alchemist", author="Paulo Coelho", user_id=1),
+            Recommendation(title="Sapiens", author="Yuval Noah Harari", user_id=2),
+            Recommendation(title="Educated", author="Tara Westover", user_id=3),
+            Recommendation(title="Becoming", author="Michelle Obama", user_id=4),
+            Recommendation(title="Where the Crawdads Sing", author="Delia Owens", user_id=5)
+        ]
+
+        db.session.add_all(recommendations)
         db.session.commit()
 
 if __name__ == '__main__':
