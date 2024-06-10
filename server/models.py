@@ -47,9 +47,9 @@ class User(db.Model, SerializerMixin):
 # Define Book model
 class Book(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
-    author = db.Column(db.String(255), nullable=False)
-    image_url = db.Column(db.String(255))
+    title = db.Column(db.String(50), nullable=False)
+    author = db.Column(db.String(50), nullable=False)
+    image_url = db.Column(db.String(50))
     
     genre_id = db.Column(db.Integer, db.ForeignKey('genre.id'), nullable=False)
     genre = db.relationship('Genre', back_populates="books")

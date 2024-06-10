@@ -7,13 +7,12 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import StarRatingComponent from 'react-star-rating-component';
 
-const BookDetails = ({ onAddToMyList, userBooks }) => {
+const BookDetails = ({ onAddToMyList, userBooks, ratings, updateRating }) => {
   const { id } = useParams();
   const [book, setBook] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [isReviewFormVisible, setReviewFormVisible] = useState(false);
   const [userReviewExists, setUserReviewExists] = useState(false);
-  const [rating, setRating] = useState(0);
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -21,7 +20,6 @@ const BookDetails = ({ onAddToMyList, userBooks }) => {
         const response = await axios.get(`http://localhost:5000/books/${id}`);
         setBook(response.data);
         setReviews(response.data.reviews || []);
-        setRating(response.data.user_rating || 0);
 
         const token = localStorage.getItem('token');
         if (token) {
@@ -76,7 +74,6 @@ const BookDetails = ({ onAddToMyList, userBooks }) => {
   });
 
   const onStarClick = async (nextValue) => {
-    setRating(nextValue);
     const token = localStorage.getItem('token');
     if (token) {
       try {
@@ -89,6 +86,7 @@ const BookDetails = ({ onAddToMyList, userBooks }) => {
             },
           }
         );
+        updateRating(book.id, nextValue);
       } catch (error) {
         console.error('Error updating rating:', error);
       }
@@ -96,8 +94,6 @@ const BookDetails = ({ onAddToMyList, userBooks }) => {
       alert('You need to be logged in to rate a book.');
     }
   };
-
-  const isBookInList = userBooks.some((userBook) => userBook.id === book?.id);
 
   return (
     <div className="book-details-container">
@@ -109,17 +105,19 @@ const BookDetails = ({ onAddToMyList, userBooks }) => {
             <p>{book.author}</p>
             <button
               onClick={() => onAddToMyList(book.id)}
-              disabled={isBookInList}
+              disabled={userBooks.some((userBook) => userBook.id === book.id)}
             >
-              {isBookInList ? 'Added to List' : 'Add to My List'}
+              {userBooks.some((userBook) => userBook.id === book.id)
+                ? 'Added to List'
+                : 'Add to My List'}
             </button>
-            {isBookInList && (
+            {userBooks.some((userBook) => userBook.id === book.id) && (
               <div className="rating">
                 <h3>Rate this book:</h3>
                 <StarRatingComponent 
                   name="bookRating" 
                   starCount={5}
-                  value={rating}
+                  value={ratings[book.id] || 0}
                   onStarClick={onStarClick}
                 />
               </div>

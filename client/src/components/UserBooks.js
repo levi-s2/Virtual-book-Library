@@ -4,27 +4,18 @@ import { Link, useHistory } from 'react-router-dom';
 import axios from './axiosConfig';
 import StarRatingComponent from 'react-star-rating-component';
 
-const UserBooks = ({ userBooks, onRemoveFromMyList }) => {
+const UserBooks = ({ userBooks, onRemoveFromMyList, ratings, updateRating }) => {
   const [loading, setLoading] = useState(true);
-  const [ratings, setRatings] = useState({});
   const history = useHistory();
 
   useEffect(() => {
     if (userBooks) {
-      const initialRatings = {};
-      userBooks.forEach(book => {
-        initialRatings[book.id] = book.rating || 0;
-      });
-      setRatings(initialRatings);
       setLoading(false);
     }
   }, [userBooks]);
 
   const handleStarClick = async (nextValue, bookId) => {
-    setRatings(prevRatings => ({
-      ...prevRatings,
-      [bookId]: nextValue
-    }));
+    updateRating(bookId, nextValue);
 
     const token = localStorage.getItem('token');
     try {
@@ -66,8 +57,8 @@ const UserBooks = ({ userBooks, onRemoveFromMyList }) => {
                 <StarRatingComponent 
                   name={`bookRating-${book.id}`} 
                   starCount={5}
-                  value={ratings[book.id]}
-                  onStarClick={(nextValue, prevValue, name) => handleStarClick(nextValue, prevValue, name, book.id)}
+                  value={ratings[book.id] || 0}
+                  onStarClick={(nextValue) => handleStarClick(nextValue, book.id)}
                 />
               </div>
               <button onClick={() => handleAddReview(book.id)}>Add a Review</button>

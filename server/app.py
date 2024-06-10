@@ -199,7 +199,7 @@ class UserBooks(Resource):
         try:
             user_id = get_jwt_identity()
             data = request.get_json()
-            rating = data.get('rating')  # Getting the rating from the request data
+            rating = data.get('rating')
             user_book = db.session.query(user_books).filter_by(user_id=user_id, book_id=book_id).first()
 
             if not user_book:

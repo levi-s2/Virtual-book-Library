@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Switch, useHistory } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, useHistory, Link } from 'react-router-dom';
 import axios from "./axiosConfig";
 import { jwtDecode } from 'jwt-decode';
 import HomePage from './HomePage';
@@ -19,6 +19,7 @@ const App = () => {
   const [userBooks, setUserBooks] = useState([]);
   const [genres, setGenres] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState('');
+  const [ratings, setRatings] = useState({});
   const history = useHistory();
 
   useEffect(() => {
@@ -61,6 +62,11 @@ const App = () => {
         },
       });
       setUserBooks(response.data);
+      const ratingsMap = response.data.reduce((acc, book) => {
+        acc[book.id] = book.rating;
+        return acc;
+      }, {});
+      setRatings(ratingsMap);
     } catch (error) {
       console.error('Error fetching user books:', error);
     }
@@ -105,18 +111,17 @@ const App = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('refresh_token');
     setUser(null);
     setUserBooks([]);
   };
 
-  const addToMyList = async (bookId, rating) => {
+  const addToMyList = async (bookId) => {
     if (user) {
       try {
         const token = localStorage.getItem('token');
         await axios.post(
           `http://localhost:5000/user/books`,
-          { bookId, rating }, // Including rating in the request body
+          { bookId },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -131,7 +136,6 @@ const App = () => {
       alert('You need to be logged in to add books to your list.');
     }
   };
-  
 
   const removeFromMyList = async (bookId) => {
     if (user) {
@@ -153,6 +157,10 @@ const App = () => {
     } else {
       alert('You need to be logged in to remove books from your list.');
     }
+  };
+
+  const updateRating = (bookId, rating) => {
+    setRatings({ ...ratings, [bookId]: rating });
   };
 
   return (
@@ -179,6 +187,8 @@ const App = () => {
             <BookDetails
               onAddToMyList={addToMyList}
               userBooks={userBooks}
+              ratings={ratings}
+              updateRating={updateRating}
             />
           </Route>
           <Route path="/register">
@@ -188,10 +198,28 @@ const App = () => {
             <Login onLogin={handleLogin} />
           </Route>
           <Route path="/user/books">
-            {user ? <UserBooks userBooks={userBooks} onRemoveFromMyList={removeFromMyList} /> : <Login onLogin={handleLogin} />}
-          </Route>
+  {user ? (
+    <UserBooks
+      userBooks={userBooks}
+      onRemoveFromMyList={removeFromMyList}
+      ratings={ratings}
+      updateRating={updateRating}
+    />
+  ) : (
+    <div>
+      <p>You need to be logged in to create your book list, please go to the <Link to="/login">login page</Link>.</p>
+    </div>
+  )}
+</Route>
           <Route path="/user/reviews">
-            {user ? <UserReviews /> : <Login onLogin={handleLogin} />}
+            {user ? (
+               <UserReviews
+                />
+            ): (
+              <div>
+              <p>You need to be logged in to view your reviews, please go to the <Link to="/Login">login page</Link>.</p>
+            </div>
+            )}
           </Route>
           <Route path="/recommendations">
             <Recommendations user={user} />
