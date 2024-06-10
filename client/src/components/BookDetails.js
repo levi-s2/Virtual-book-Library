@@ -7,7 +7,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import StarRatingComponent from 'react-star-rating-component';
 
-const BookDetails = ({ onAddToMyList }) => {
+const BookDetails = ({ onAddToMyList, userBooks }) => {
   const { id } = useParams();
   const [book, setBook] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -95,8 +95,9 @@ const BookDetails = ({ onAddToMyList }) => {
     } else {
       alert('You need to be logged in to rate a book.');
     }
-};
+  };
 
+  const isBookInList = userBooks.some((userBook) => userBook.id === book?.id);
 
   return (
     <div className="book-details-container">
@@ -106,18 +107,23 @@ const BookDetails = ({ onAddToMyList }) => {
             <img className="book-image" src={book.image_url} alt={book.title} />
             <h2>{book.title}</h2>
             <p>{book.author}</p>
-            <button className="add-to-list-button" onClick={() => onAddToMyList(book.id)}>
-              Add to My List
+            <button
+              onClick={() => onAddToMyList(book.id)}
+              disabled={isBookInList}
+            >
+              {isBookInList ? 'Added to List' : 'Add to My List'}
             </button>
-            <div className="rating">
-              <h3>Rate this book:</h3>
-              <StarRatingComponent 
-                name="bookRating" 
-                starCount={5}
-                value={rating}
-                onStarClick={onStarClick}
-              />
-            </div>
+            {isBookInList && (
+              <div className="rating">
+                <h3>Rate this book:</h3>
+                <StarRatingComponent 
+                  name="bookRating" 
+                  starCount={5}
+                  value={rating}
+                  onStarClick={onStarClick}
+                />
+              </div>
+            )}
           </div>
           <div className="reviews-section">
             <h3>Reviews</h3>

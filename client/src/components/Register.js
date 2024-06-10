@@ -10,8 +10,13 @@ const Register = ({ onRegister }) => {
   };
 
   const validationSchema = Yup.object({
-    name: Yup.string().required('Name is required').min(3, 'Name must be at least 3 characters'),
-    password: Yup.string().required('Password is required').min(6, 'Password must be at least 6 characters'),
+    name: Yup.string()
+      .min(3, 'Name must be at least 3 characters long')
+      .max(30, 'Name cannot be longer than 30 characters')
+      .required('Name is required'),
+    password: Yup.string()
+      .min(6, 'Password must be at least 6 characters long')
+      .required('Password is required'),
   });
 
   const handleSubmit = async (values, { setSubmitting, setErrors, setStatus }) => {

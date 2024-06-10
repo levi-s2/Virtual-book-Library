@@ -20,7 +20,7 @@ const UserBooks = ({ userBooks, onRemoveFromMyList }) => {
     }
   }, [userBooks]);
 
-  const handleStarClick = async (nextValue, prevValue, name, bookId) => {
+  const handleStarClick = async (nextValue, bookId) => {
     setRatings(prevRatings => ({
       ...prevRatings,
       [bookId]: nextValue
