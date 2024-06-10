@@ -14,7 +14,7 @@ const UserReviews = ({ user }) => {
     const fetchReviews = async () => {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.get('http://localhost:5000/user/reviews', {
+        const response = await axios.get('/user/reviews', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -33,7 +33,7 @@ const UserReviews = ({ user }) => {
   const handleDeleteReview = async (reviewId) => {
     const token = localStorage.getItem('token');
     try {
-      await axios.delete(`http://localhost:5000/user/reviews/${reviewId}`, {
+      await axios.delete(`/user/reviews/${reviewId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -58,7 +58,7 @@ const UserReviews = ({ user }) => {
 
     const token = localStorage.getItem('token');
     try {
-      await axios.patch(`http://localhost:5000/user/reviews/${reviewId}`, {
+      await axios.patch(`/user/reviews/${reviewId}`, {
         body: editReviewBody,
       }, {
         headers: {

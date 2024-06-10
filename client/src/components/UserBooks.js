@@ -20,7 +20,7 @@ const UserBooks = ({ userBooks, onRemoveFromMyList, ratings, updateRating }) => 
     const token = localStorage.getItem('token');
     try {
       await axios.patch(
-        `http://localhost:5000/user/books/${bookId}`,
+        `/user/books/${bookId}`,
         { rating: nextValue },
         {
           headers: {

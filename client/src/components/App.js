@@ -23,13 +23,13 @@ const App = () => {
   const history = useHistory();
 
   useEffect(() => {
-    axios.get('http://localhost:5000/books').then((response) => {
+    axios.get('/books').then((response) => {
       setBooks(response.data);
     }).catch((error) => {
       console.error('Error fetching books:', error);
     });
 
-    axios.get('http://localhost:5000/genres').then((response) => {
+    axios.get('/genres').then((response) => {
       setGenres(response.data);
     }).catch((error) => {
       console.error('Error fetching genres:', error);
@@ -56,7 +56,7 @@ const App = () => {
   const fetchUserBooks = async () => {
     const token = localStorage.getItem('token');
     try {
-      const response = await axios.get('http://localhost:5000/user/books', {
+      const response = await axios.get('/user/books', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -82,7 +82,7 @@ const App = () => {
 
   const handleRegister = async (name, password) => {
     try {
-      const response = await axios.post('http://localhost:5000/register', { name, password }, {
+      const response = await axios.post('/register', { name, password }, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -120,7 +120,7 @@ const App = () => {
       try {
         const token = localStorage.getItem('token');
         await axios.post(
-          `http://localhost:5000/user/books`,
+          `/user/books`,
           { bookId },
           {
             headers: {
@@ -142,7 +142,7 @@ const App = () => {
       try {
         const token = localStorage.getItem('token');
         await axios.delete(
-          `http://localhost:5000/user/books/${bookId}`,
+          `/user/books/${bookId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -198,27 +198,26 @@ const App = () => {
             <Login onLogin={handleLogin} />
           </Route>
           <Route path="/user/books">
-  {user ? (
-    <UserBooks
-      userBooks={userBooks}
-      onRemoveFromMyList={removeFromMyList}
-      ratings={ratings}
-      updateRating={updateRating}
-    />
-  ) : (
-    <div>
-      <p>You need to be logged in to create your book list, please go to the <Link to="/login">login page</Link>.</p>
-    </div>
-  )}
-</Route>
+            {user ? (
+              <UserBooks
+                userBooks={userBooks}
+                onRemoveFromMyList={removeFromMyList}
+                ratings={ratings}
+                updateRating={updateRating}
+              />
+            ) : (
+              <div>
+                <p>You need to be logged in to create your book list, please go to the <Link to="/login">login page</Link>.</p>
+              </div>
+            )}
+          </Route>
           <Route path="/user/reviews">
             {user ? (
-               <UserReviews
-                />
+               <UserReviews />
             ): (
               <div>
-              <p>You need to be logged in to view your reviews, please go to the <Link to="/Login">login page</Link>.</p>
-            </div>
+                <p>You need to be logged in to view your reviews, please go to the <Link to="/Login">login page</Link>.</p>
+              </div>
             )}
           </Route>
           <Route path="/recommendations">

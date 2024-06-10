@@ -3,8 +3,10 @@
 import axios from 'axios';
 import { refreshToken } from './utils/auth';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 const instance = axios.create({
-  baseURL: 'http://localhost:5000'
+  baseURL: API_BASE_URL
 });
 
 instance.interceptors.request.use(

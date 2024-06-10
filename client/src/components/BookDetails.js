@@ -17,7 +17,7 @@ const BookDetails = ({ onAddToMyList, userBooks, ratings, updateRating }) => {
   useEffect(() => {
     const fetchBook = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/books/${id}`);
+        const response = await axios.get(`/books/${id}`);
         setBook(response.data);
         setReviews(response.data.reviews || []);
 
@@ -42,7 +42,7 @@ const BookDetails = ({ onAddToMyList, userBooks, ratings, updateRating }) => {
     if (token) {
       try {
         const response = await axios.post(
-          'http://localhost:5000/reviews',
+          '/reviews',
           { book_id: book.id, review: values.review },
           {
             headers: {
@@ -78,7 +78,7 @@ const BookDetails = ({ onAddToMyList, userBooks, ratings, updateRating }) => {
     if (token) {
       try {
         await axios.patch(
-          `http://localhost:5000/user/books/${id}`,
+          `/user/books/${id}`,
           { rating: nextValue },
           {
             headers: {

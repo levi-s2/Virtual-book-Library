@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from './axiosConfig';
 import './css/Recommendations.css';
 
 const Recommendations = ({ user }) => {
@@ -10,7 +10,7 @@ const Recommendations = ({ user }) => {
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/recommendations');
+        const response = await axios.get('/recommendations');
         setRecommendations(response.data);
       } catch (error) {
         console.error('Error fetching recommendations:', error);
@@ -26,7 +26,7 @@ const Recommendations = ({ user }) => {
     if (token) {
       try {
         const response = await axios.post(
-          'http://localhost:5000/recommendations',
+          '/recommendations',
           { title, author },
           {
             headers: {
