@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { Link, useHistory } from 'react-router-dom';
 import axios from './axiosConfig';
-import StarRatingComponent from 'react-star-rating-component';
+import StarRatings from 'react-star-ratings';
 
 const UserBooks = ({ userBooks, onRemoveFromMyList, ratings, updateRating }) => {
   const [loading, setLoading] = useState(true);
@@ -20,7 +20,7 @@ const UserBooks = ({ userBooks, onRemoveFromMyList, ratings, updateRating }) => 
     const token = localStorage.getItem('token');
     try {
       await axios.patch(
-        `/user/books/${bookId}`,
+        `${process.env.REACT_APP_API_URL}/user/books/${bookId}`,
         { rating: nextValue },
         {
           headers: {
@@ -54,11 +54,12 @@ const UserBooks = ({ userBooks, onRemoveFromMyList, ratings, updateRating }) => 
               <p>{book.author}</p>
               <div className="rating">
                 <h4>Rating:</h4>
-                <StarRatingComponent 
-                  name={`bookRating-${book.id}`} 
-                  starCount={5}
-                  value={ratings[book.id] || 0}
-                  onStarClick={(nextValue) => handleStarClick(nextValue, book.id)}
+                <StarRatings 
+                  rating={ratings[book.id] || 0}
+                  starRatedColor="blue"
+                  changeRating={(nextValue) => handleStarClick(nextValue, book.id)}
+                  numberOfStars={5}
+                  name={`rating-${book.id}`}
                 />
               </div>
               <button onClick={() => handleAddReview(book.id)}>Add a Review</button>

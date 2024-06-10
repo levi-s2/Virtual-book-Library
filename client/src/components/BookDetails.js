@@ -5,7 +5,7 @@ import './css/BookDetails.css';
 import { jwtDecode } from 'jwt-decode';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import StarRatingComponent from 'react-star-rating-component';
+import StarRatings from 'react-star-ratings';
 
 const BookDetails = ({ onAddToMyList, userBooks, ratings, updateRating }) => {
   const { id } = useParams();
@@ -17,7 +17,7 @@ const BookDetails = ({ onAddToMyList, userBooks, ratings, updateRating }) => {
   useEffect(() => {
     const fetchBook = async () => {
       try {
-        const response = await axios.get(`/books/${id}`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/books/${id}`);
         setBook(response.data);
         setReviews(response.data.reviews || []);
 
@@ -42,7 +42,7 @@ const BookDetails = ({ onAddToMyList, userBooks, ratings, updateRating }) => {
     if (token) {
       try {
         const response = await axios.post(
-          '/reviews',
+          `${process.env.REACT_APP_API_URL}/reviews`,
           { book_id: book.id, review: values.review },
           {
             headers: {
@@ -78,7 +78,7 @@ const BookDetails = ({ onAddToMyList, userBooks, ratings, updateRating }) => {
     if (token) {
       try {
         await axios.patch(
-          `/user/books/${id}`,
+          `${process.env.REACT_APP_API_URL}/user/books/${id}`,
           { rating: nextValue },
           {
             headers: {
@@ -114,11 +114,12 @@ const BookDetails = ({ onAddToMyList, userBooks, ratings, updateRating }) => {
             {userBooks.some((userBook) => userBook.id === book.id) && (
               <div className="rating">
                 <h3>Rate this book:</h3>
-                <StarRatingComponent 
-                  name="bookRating" 
-                  starCount={5}
-                  value={ratings[book.id] || 0}
-                  onStarClick={onStarClick}
+                <StarRatings
+                  rating={ratings[book.id] || 0}
+                  starRatedColor="blue"
+                  changeRating={onStarClick}
+                  numberOfStars={5}
+                  name="rating"
                 />
               </div>
             )}
