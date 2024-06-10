@@ -3,7 +3,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_restful import Api, Resource
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity, create_refresh_token, get_jwt)
-from models import db, bcrypt, User, Book, Review, Genre, Recommendation, user_books
+from server.models import db, bcrypt, User, Book, Review, Genre, Recommendation, user_books
 from datetime import timedelta
 import os
 import traceback
